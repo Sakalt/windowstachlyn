@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Nexa (2530)</title>
+    <style>
+        /* 全体のスタイル */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: url('sunset_background.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .title-bar {
+            background-color: #0078d4;
+            color: white;
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .title-bar .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .title-bar .controls button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .window {
+            border: 1px solid #ccc;
+            background: white;
+            width: 600px;
+            height: 400px;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            display: none;
+            z-index: 1000;
+        }
+        .window.active {
+            display: block;
+        }
+        .window .content {
+            padding: 10px;
+            overflow-y: auto;
+            height: calc(100% - 30px);
+        }
+        .window .content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        #setup {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        #setup input[type="file"] {
+            margin: 10px 0;
+        }
+        #setup input[type="text"] {
+            margin: 10px 0;
+        }
+        #setup button {
+            margin: 10px 0;
+        }
+        #taskbar {
+            display: flex;
+            background: #0078d4;
+            color: white;
+            height: 40px;
+            align-items: center;
+            padding: 0 10px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        #taskbar button {
+            background: transparent;
+            border: none;
+            color: white;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        #taskbar .user-info {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        #taskbar .user-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        #taskbar .user-info span {
+            font-size: 14px;
+        }
+        #notifications {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+            display: none;
+        }
+        #notifications p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <button id="calcBtn">電卓</button>
+        <button id="browserBtn">ブラウザ</button>
+        <button id="registryBtn">レジストリ</button>
+        <button id="taskManagerBtn">タスクマネージャー</button>
+        <button id="anagramMakerBtn">アナグラムメーカー</button>
+        <button id="paintBtn">ペイント</button>
+        <button id="newsBtn">ニュース</button>
+        <button id="aiBtn">AI</button>
+        <button id="chatBtn">チャット</button>
+        <button id="userListBtn">ユーザーリスト</button>
+        <div class="user-info">
+            <img id="userIcon" src="" alt="ユーザーアイコン">
+            <span id="username">ゲスト</span>
+        </div>
+    </div>
+
+    <!-- セットアップウィンドウ -->
+    <div class="window" id="setup">
+        <h2>セットアップ</h2>
+        <input type="file" id="iconUpload" accept="image/*">
+        <input type="text" id="usernameInput" placeholder="ユーザー名を入力">
+        <button id="acceptBtn">同意してセットアップ</button>
+    </div>
+
+    <!-- 電卓ウィンドウ -->
+    <div class="window calculator" id="calculator">
+        <div class="title-bar">
+            <span class="title">電卓</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <input type="text" id="calcInput" readonly>
+            <div>
+                <button onclick="appendToCalc('1')">1</button>
+                <button onclick="appendToCalc('2')">2</button>
+                <button onclick="appendToCalc('3')">3</button>
+                <button onclick="appendToCalc('+')">+</button>
+                <button onclick="appendToCalc('4')">4</button>
+                <button onclick="appendToCalc('5')">5</button>
+                <button onclick="appendToCalc('6')">6</button>
+                <button onclick="appendToCalc('-')">-</button>
+                <button onclick="appendToCalc('7')">7</button>
+                <button onclick="appendToCalc('8')">8</button>
+                <button onclick="appendToCalc('9')">9</button>
+                <button onclick="appendToCalc('*')">*</button>
+                <button onclick="appendToCalc('0')">0</button>
+                <button onclick="calculate()">=</button>
+                <button onclick="clearCalc()">C</button>
+                <button onclick="appendToCalc('/')">/</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ブラウザウィンドウ -->
+    <div class="window browser" id="browser">
+        <div class="title-bar">
+            <span class="title">ブラウザ</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <iframe src="https://www.bing.com"></iframe>
+        </div>
+    </div>
+
+    <!-- レジストリウィンドウ -->
+    <div class="window registry" id="registry">
+        <div class="title-bar">
+            <span class="title">レジストリ</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <p>レジストリの機能をできるだけ再現しました。</p>
+            <!-- レジストリの内容をここに追加 -->
+        </div>
+    </div>
+
+    <!-- タスクマネージャーウィンドウ -->
+    <div class="window task-manager" id="taskManager">
+        <div class="title-bar">
+            <span class="title">タスクマネージャー</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <p>開発中</p>
+        </div>
+    </div>
+
+    <!-- アナグラムメーカーウィンドウ -->
+    <div class="window anagram-maker" id="anagramMaker">
+        <div class="title-bar">
+            <span class="title">アナグラムメーカー</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <h3>アナグラム生成</h3>
+            <input type="text" id="anagramInput" placeholder="テキストを入力">
+            <button onclick="generateAnagram()">生成</button>
+            <p id="anagramOutput"></p>
+        </div>
+    </div>
+
+    <!-- ペイントウィンドウ -->
+    <div class="window paint" id="paint">
+        <div class="title-bar">
+            <span class="title">ペイント</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <iframe src="https://sakalt.github.io/paint"></iframe>
+        </div>
+    </div>
+
+    <!-- AIウィンドウ -->
+    <div class="window ai" id="ai">
+        <div class="title-bar">
+            <span class="title">AI</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <p>開発中</p>
+        </div>
+    </div>
+
+    <!-- チャットウィンドウ -->
+    <div class="window chat" id="chat">
+        <div class="title-bar">
+            <span class="title">オンラインチャット</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <h3>チャット</h3>
+            <div id="chatMessages" style="height: 300px; overflow-y: auto;"></div>
+            <input type="text" id="chatInput" placeholder="メッセージを入力">
+            <button onclick="sendMessage()">送信</button>
+        </div>
+    </div>
+
+    <!-- ユーザーリストウィンドウ -->
+    <div class="window user-list" id="userList">
+        <div class="title-bar">
+            <span class="title">ユーザーリスト</span>
+            <div class="controls">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">X</button>
+            </div>
+        </div>
+        <div class="content">
+            <iframe src="https://sakalt.github.io/windowstachlyn/userlist.html"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // ウィンドウを操作するスクリプト
+        function toggleWindow(id) {
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(win => {
+                if (win.id === id) {
+                    win.classList.toggle('active');
+                } else {
+                    win.classList.remove('active');
+                }
+            });
+        }
+
+        // ボタンにイベントリスナーを追加
+        document.getElementById('calcBtn').addEventListener('click', () => toggleWindow('calculator'));
+        document.getElementById('browserBtn').addEventListener('click', () => toggleWindow('browser'));
+        document.getElementById('registryBtn').addEventListener('click', () => toggleWindow('registry'));
+        document.getElementById('taskManagerBtn').addEventListener('click', () => toggleWindow('taskManager'));
+        document.getElementById('anagramMakerBtn').addEventListener('click', () => toggleWindow('anagramMaker'));
+        document.getElementById('paintBtn').addEventListener('click', () => toggleWindow('paint'));
+        document.getElementById('newsBtn').addEventListener('click', () => alert('ニュース機能は開発中です'));
+        document.getElementById('aiBtn').addEventListener('click', () => toggleWindow('ai'));
+        document.getElementById('chatBtn').addEventListener('click', () => toggleWindow('chat'));
+        document.getElementById('userListBtn').addEventListener('click', () => toggleWindow('userList'));
+
+        // 電卓機能
+        function appendToCalc(value) {
+            document.getElementById('calcInput').value += value;
+        }
+
+        function calculate() {
+            const input = document.getElementById('calcInput').value;
+            try {
+                document.getElementById('calcInput').value = eval(input);
+            } catch {
+                alert('エラー');
+            }
+        }
+
+        function clearCalc() {
+            document.getElementById('calcInput').value = '';
+        }
+
+        // アナグラム生成
+        function generateAnagram() {
+            const input = document.getElementById('anagramInput').value;
+            // アナグラム生成のロジックをここに追加
+            document.getElementById('anagramOutput').innerText = '開発中'; // プレースホルダー
+        }
+
+        // チャット機能
+        function sendMessage() {
+            const input = document.getElementById('chatInput').value;
+            const messages = document.getElementById('chatMessages');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = input;
+            messages.appendChild(newMessage);
+            document.getElementById('chatInput').value = '';
+        }
+
+        // セットアップ
+        document.getElementById('acceptBtn').addEventListener('click', () => {
+            const username = document.getElementById('usernameInput').value;
+            const icon = document.getElementById('iconUpload').files[0];
+            if (username) {
+                document.getElementById('username').textContent = username;
+                if (icon) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('userIcon').src = e.target.result;
+                    };
+                    reader.readAsDataURL(icon);
+                }
+                localStorage.setItem('username', username);
+                localStorage.setItem('userIcon', icon ? URL.createObjectURL(icon) : '');
+                document.getElementById('setup').style.display = 'none';
+            } else {
+                alert('ユーザー名を入力してください');
+            }
+        });
+
+        // ローカルストレージからの設定読み込み
+        window.onload = () => {
+            const username = localStorage.getItem('username');
+            const userIcon = localStorage.getItem('userIcon');
+            if (username) {
+                document.getElementById('username').textContent = username;
+                document.getElementById('userIcon').src = userIcon;
+            } else {
+                document.getElementById('setup').style.display = 'flex';
+            }
+        };
+    </script>
+</body>
+</html>

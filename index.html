@@ -3,132 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windows Nexa (2530)</title>
+    <title>Windows Tachlyn</title>
     <style>
-        /* 全体のスタイル */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: url('sunset_background.png') no-repeat center center fixed;
-            background-size: cover;
+            background: #e0e0e0;
         }
         .title-bar {
-            background-color: #0078d4;
-            color: white;
-            padding: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #0078d4;
+            color: white;
+            padding: 10px;
+            cursor: move;
+            user-select: none;
         }
-        .title-bar .title {
-            font-size: 16px;
-            font-weight: bold;
+        .title-bar .controls {
+            display: flex;
         }
         .title-bar .controls button {
-            background: transparent;
+            background: none;
             border: none;
             color: white;
             font-size: 16px;
+            margin-left: 5px;
             cursor: pointer;
         }
         .window {
-            border: 1px solid #ccc;
-            background: white;
-            width: 600px;
-            height: 400px;
             position: absolute;
-            top: 50px;
-            left: 50px;
+            width: 400px;
+            height: 300px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             display: none;
-            z-index: 1000;
         }
         .window.active {
             display: block;
         }
-        .window .content {
-            padding: 10px;
-            overflow-y: auto;
-            height: calc(100% - 30px);
-        }
-        .window .content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        #setup {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
+        .content {
             padding: 20px;
-            border: 1px solid #ccc;
         }
-        #setup input[type="file"] {
-            margin: 10px 0;
-        }
-        #setup input[type="text"] {
-            margin: 10px 0;
-        }
-        #setup button {
-            margin: 10px 0;
-        }
-        #taskbar {
-            display: flex;
-            background: #0078d4;
-            color: white;
-            height: 40px;
-            align-items: center;
-            padding: 0 10px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-        #taskbar button {
-            background: transparent;
-            border: none;
-            color: white;
-            margin: 0 10px;
-            cursor: pointer;
-        }
-        #taskbar .user-info {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-        }
-        #taskbar .user-info img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        #taskbar .user-info span {
-            font-size: 14px;
-        }
-        #notifications {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 10px;
-            box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+        .hidden {
             display: none;
         }
-        #notifications p {
-            margin: 0;
+        .button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+        .button-container button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .button-container button:hover {
+            background-color: #005a9e;
         }
     </style>
 </head>
 <body>
-    <div id="taskbar">
+    <div class="button-container">
         <button id="calcBtn">電卓</button>
         <button id="browserBtn">ブラウザ</button>
         <button id="registryBtn">レジストリ</button>
@@ -139,18 +82,6 @@
         <button id="aiBtn">AI</button>
         <button id="chatBtn">チャット</button>
         <button id="userListBtn">ユーザーリスト</button>
-        <div class="user-info">
-            <img id="userIcon" src="" alt="ユーザーアイコン">
-            <span id="username">ゲスト</span>
-        </div>
-    </div>
-
-    <!-- セットアップウィンドウ -->
-    <div class="window" id="setup">
-        <h2>セットアップ</h2>
-        <input type="file" id="iconUpload" accept="image/*">
-        <input type="text" id="usernameInput" placeholder="ユーザー名を入力">
-        <button id="acceptBtn">同意してセットアップ</button>
     </div>
 
     <!-- 電卓ウィンドウ -->
@@ -164,23 +95,29 @@
             </div>
         </div>
         <div class="content">
-            <input type="text" id="calcInput" readonly>
+            <input type="text" id="calcInput" placeholder="0">
             <div>
                 <button onclick="appendToCalc('1')">1</button>
                 <button onclick="appendToCalc('2')">2</button>
                 <button onclick="appendToCalc('3')">3</button>
                 <button onclick="appendToCalc('+')">+</button>
+            </div>
+            <div>
                 <button onclick="appendToCalc('4')">4</button>
                 <button onclick="appendToCalc('5')">5</button>
                 <button onclick="appendToCalc('6')">6</button>
                 <button onclick="appendToCalc('-')">-</button>
+            </div>
+            <div>
                 <button onclick="appendToCalc('7')">7</button>
                 <button onclick="appendToCalc('8')">8</button>
                 <button onclick="appendToCalc('9')">9</button>
                 <button onclick="appendToCalc('*')">*</button>
+            </div>
+            <div>
                 <button onclick="appendToCalc('0')">0</button>
-                <button onclick="calculate()">=</button>
                 <button onclick="clearCalc()">C</button>
+                <button onclick="calculate()">=</button>
                 <button onclick="appendToCalc('/')">/</button>
             </div>
         </div>
@@ -197,7 +134,7 @@
             </div>
         </div>
         <div class="content">
-            <iframe src="https://www.bing.com"></iframe>
+            <iframe src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
 
@@ -212,8 +149,7 @@
             </div>
         </div>
         <div class="content">
-            <p>レジストリの機能をできるだけ再現しました。</p>
-            <!-- レジストリの内容をここに追加 -->
+            <p>開発中</p>
         </div>
     </div>
 
@@ -243,7 +179,6 @@
             </div>
         </div>
         <div class="content">
-            <h3>アナグラム生成</h3>
             <input type="text" id="anagramInput" placeholder="テキストを入力">
             <button onclick="generateAnagram()">生成</button>
             <p id="anagramOutput"></p>
@@ -261,7 +196,7 @@
             </div>
         </div>
         <div class="content">
-            <iframe src="https://sakalt.github.io/paint"></iframe>
+            <iframe src="https://sakalt.github.io/paint" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
 
@@ -309,102 +244,182 @@
             </div>
         </div>
         <div class="content">
-            <iframe src="https://sakalt.github.io/windowstachlyn/userlist.html"></iframe>
+            <iframe src="https://sakalt.github.io/windowstachlyn/userlist.html" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
 
     <script>
-        // ウィンドウを操作するスクリプト
-        function toggleWindow(id) {
-            const windows = document.querySelectorAll('.window');
-            windows.forEach(win => {
-                if (win.id === id) {
-                    win.classList.toggle('active');
-                } else {
-                    win.classList.remove('active');
+        // ウィンドウ操作
+        const windows = document.querySelectorAll('.window');
+        let zIndex = 1;
+
+        windows.forEach(win => {
+            const titleBar = win.querySelector('.title-bar');
+            const minimizeBtn = titleBar.querySelector('.minimize');
+            const maximizeBtn = titleBar.querySelector('.maximize');
+            const closeBtn = titleBar.querySelector('.close');
+
+            let isMaximized = false;
+            let originalWidth, originalHeight, originalLeft, originalTop;
+
+            // ドラッグ機能
+            titleBar.onmousedown = function(event) {
+                const shiftX = event.clientX - win.getBoundingClientRect().left;
+                const shiftY = event.clientY - win.getBoundingClientRect().top;
+
+                function moveAt(pageX, pageY) {
+                    win.style.left = pageX - shiftX + 'px';
+                    win.style.top = pageY - shiftY + 'px';
                 }
-            });
+
+                moveAt(event.pageX, event.pageY);
+
+                function onMouseMove(event) {
+                    moveAt(event.pageX, event.pageY);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+
+                document.onmouseup = function() {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.onmouseup = null;
+                };
+            };
+
+            // 最小化機能
+            minimizeBtn.onclick = () => {
+                win.classList.toggle('hidden');
+                saveWindowState(win.id);
+            };
+
+            // 最大化/復元機能
+            maximizeBtn.onclick = () => {
+                if (isMaximized) {
+                    win.style.width = originalWidth;
+                    win.style.height = originalHeight;
+                    win.style.left = originalLeft;
+                    win.style.top = originalTop;
+                } else {
+                    originalWidth = win.style.width;
+                    originalHeight = win.style.height;
+                    originalLeft = win.style.left;
+                    originalTop = win.style.top;
+                    win.style.width = '100%';
+                    win.style.height = '100%';
+                    win.style.left = '0';
+                    win.style.top = '0';
+                }
+                isMaximized = !isMaximized;
+                saveWindowState(win.id);
+            };
+
+            // 閉じる機能
+            closeBtn.onclick = () => {
+                win.classList.add('hidden');
+                saveWindowState(win.id);
+            };
+
+            // アクティブ状態を管理
+            win.onclick = () => {
+                win.style.zIndex = zIndex++;
+            };
+
+            // 状態を復元
+            loadWindowState(win.id);
+        });
+
+        // ボタンでウィンドウ表示
+        document.getElementById('calcBtn').onclick = () => toggleWindow('calculator');
+        document.getElementById('browserBtn').onclick = () => toggleWindow('browser');
+        document.getElementById('registryBtn').onclick = () => toggleWindow('registry');
+        document.getElementById('taskManagerBtn').onclick = () => toggleWindow('taskManager');
+        document.getElementById('anagramMakerBtn').onclick = () => toggleWindow('anagramMaker');
+        document.getElementById('paintBtn').onclick = () => toggleWindow('paint');
+        document.getElementById('newsBtn').onclick = () => toggleWindow('news');
+        document.getElementById('aiBtn').onclick = () => toggleWindow('ai');
+        document.getElementById('chatBtn').onclick = () => toggleWindow('chat');
+        document.getElementById('userListBtn').onclick = () => toggleWindow('userList');
+
+        // ウィンドウの表示/非表示
+        function toggleWindow(id) {
+            const win = document.getElementById(id);
+            win.classList.toggle('hidden');
+            saveWindowState(id);
         }
 
-        // ボタンにイベントリスナーを追加
-        document.getElementById('calcBtn').addEventListener('click', () => toggleWindow('calculator'));
-        document.getElementById('browserBtn').addEventListener('click', () => toggleWindow('browser'));
-        document.getElementById('registryBtn').addEventListener('click', () => toggleWindow('registry'));
-        document.getElementById('taskManagerBtn').addEventListener('click', () => toggleWindow('taskManager'));
-        document.getElementById('anagramMakerBtn').addEventListener('click', () => toggleWindow('anagramMaker'));
-        document.getElementById('paintBtn').addEventListener('click', () => toggleWindow('paint'));
-        document.getElementById('newsBtn').addEventListener('click', () => alert('ニュース機能は開発中です'));
-        document.getElementById('aiBtn').addEventListener('click', () => toggleWindow('ai'));
-        document.getElementById('chatBtn').addEventListener('click', () => toggleWindow('chat'));
-        document.getElementById('userListBtn').addEventListener('click', () => toggleWindow('userList'));
+        // ウィンドウの状態を保存
+        function saveWindowState(id) {
+            const win = document.getElementById(id);
+            const state = {
+                display: win.classList.contains('hidden') ? 'none' : 'block',
+                width: win.style.width,
+                height: win.style.height,
+                left: win.style.left,
+                top: win.style.top,
+                maximized: win.style.width === '100%' && win.style.height === '100%'
+            };
+            localStorage.setItem('windowState_' + id, JSON.stringify(state));
+        }
 
-        // 電卓機能
+        // ウィンドウの状態を読み込む
+        function loadWindowState(id) {
+            const state = JSON.parse(localStorage.getItem('windowState_' + id));
+            if (state) {
+                const win = document.getElementById(id);
+                win.style.width = state.width;
+                win.style.height = state.height;
+                win.style.left = state.left;
+                win.style.top = state.top;
+                if (state.maximized) {
+                    win.style.width = '100%';
+                    win.style.height = '100%';
+                    win.style.left = '0';
+                    win.style.top = '0';
+                }
+                win.classList.toggle('hidden', state.display === 'none');
+            }
+        }
+
+        // 電卓の操作
         function appendToCalc(value) {
             document.getElementById('calcInput').value += value;
-        }
-
-        function calculate() {
-            const input = document.getElementById('calcInput').value;
-            try {
-                document.getElementById('calcInput').value = eval(input);
-            } catch {
-                alert('エラー');
-            }
         }
 
         function clearCalc() {
             document.getElementById('calcInput').value = '';
         }
 
-        // アナグラム生成
+        function calculate() {
+            try {
+                document.getElementById('calcInput').value = eval(document.getElementById('calcInput').value);
+            } catch (e) {
+                document.getElementById('calcInput').value = 'エラー';
+            }
+        }
+
+        // アナグラムメーカー
         function generateAnagram() {
             const input = document.getElementById('anagramInput').value;
-            // アナグラム生成のロジックをここに追加
-            document.getElementById('anagramOutput').innerText = '開発中'; // プレースホルダー
+            const anagramOutput = document.getElementById('anagramOutput');
+            if (input) {
+                anagramOutput.textContent = 'アナグラムはここに表示されます'; // アナグラム生成ロジックを追加する場所
+            } else {
+                anagramOutput.textContent = 'テキストを入力してください';
+            }
         }
 
         // チャット機能
         function sendMessage() {
             const input = document.getElementById('chatInput').value;
             const messages = document.getElementById('chatMessages');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = input;
-            messages.appendChild(newMessage);
-            document.getElementById('chatInput').value = '';
+            if (input) {
+                const message = document.createElement('p');
+                message.textContent = input;
+                messages.appendChild(message);
+                document.getElementById('chatInput').value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
         }
-
-        // セットアップ
-        document.getElementById('acceptBtn').addEventListener('click', () => {
-            const username = document.getElementById('usernameInput').value;
-            const icon = document.getElementById('iconUpload').files[0];
-            if (username) {
-                document.getElementById('username').textContent = username;
-                if (icon) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        document.getElementById('userIcon').src = e.target.result;
-                    };
-                    reader.readAsDataURL(icon);
-                }
-                localStorage.setItem('username', username);
-                localStorage.setItem('userIcon', icon ? URL.createObjectURL(icon) : '');
-                document.getElementById('setup').style.display = 'none';
-            } else {
-                alert('ユーザー名を入力してください');
-            }
-        });
-
-        // ローカルストレージからの設定読み込み
-        window.onload = () => {
-            const username = localStorage.getItem('username');
-            const userIcon = localStorage.getItem('userIcon');
-            if (username) {
-                document.getElementById('username').textContent = username;
-                document.getElementById('userIcon').src = userIcon;
-            } else {
-                document.getElementById('setup').style.display = 'flex';
-            }
-        };
     </script>
 </body>
 </html>

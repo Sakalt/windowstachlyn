@@ -212,7 +212,6 @@
         </div>
         <div class="content">
             <p>レジストリの機能をできるだけ再現しました。</p>
-            <!-- レジストリの内容をここに追加 -->
         </div>
     </div>
 
@@ -227,7 +226,7 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <p>タスクマネージャーの機能を提供します。</p>
         </div>
     </div>
 
@@ -242,7 +241,9 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <input type="text" id="anagramInput" placeholder="文字列を入力">
+            <button onclick="generateAnagram()">アナグラム生成</button>
+            <p id="anagramOutput"></p>
         </div>
     </div>
 
@@ -257,7 +258,7 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <iframe src="https://sakalt.github.io/paint/"></iframe>
         </div>
     </div>
 
@@ -272,7 +273,7 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <p>ニュースアプリケーションの機能を表示します。</p>
         </div>
     </div>
 
@@ -287,7 +288,7 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <p>AI機能を表示します。</p>
         </div>
     </div>
 
@@ -302,7 +303,7 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <p>チャット機能を提供します。</p>
         </div>
     </div>
 
@@ -317,129 +318,137 @@
             </div>
         </div>
         <div class="content">
-            <p>開発中</p>
+            <iframe src="https://sakalt.github.io/windowstachlyn/userlist.html"></iframe>
         </div>
     </div>
 
+    <div id="notifications">
+        <p>通知が表示されます。</p>
+    </div>
+
     <script>
-        // ウィンドウの操作
-        document.querySelectorAll('.title-bar .controls .minimize').forEach(button => {
-            button.addEventListener('click', () => {
-                const window = button.closest('.window');
-                window.style.display = 'none';
-            });
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const setupWindow = document.getElementById('setup');
+            const calcBtn = document.getElementById('calcBtn');
+            const browserBtn = document.getElementById('browserBtn');
+            const registryBtn = document.getElementById('registryBtn');
+            const taskManagerBtn = document.getElementById('taskManagerBtn');
+            const anagramMakerBtn = document.getElementById('anagramMakerBtn');
+            const paintBtn = document.getElementById('paintBtn');
+            const newsBtn = document.getElementById('newsBtn');
+            const aiBtn = document.getElementById('aiBtn');
+            const chatBtn = document.getElementById('chatBtn');
+            const userListBtn = document.getElementById('userListBtn');
+            const userIcon = document.getElementById('userIcon');
+            const username = document.getElementById('username');
 
-        document.querySelectorAll('.title-bar .controls .maximize').forEach(button => {
-            button.addEventListener('click', () => {
-                const window = button.closest('.window');
-                if (window.style.width === '100%') {
-                    window.style.width = '600px';
-                    window.style.height = '400px';
-                } else {
-                    window.style.width = '100%';
-                    window.style.height = '100%';
+            const windows = {
+                'calculator': document.getElementById('calculator'),
+                'browser': document.getElementById('browser'),
+                'registry': document.getElementById('registry'),
+                'taskManager': document.getElementById('taskManager'),
+                'anagramMaker': document.getElementById('anagramMaker'),
+                'paint': document.getElementById('paint'),
+                'news': document.getElementById('news'),
+                'ai': document.getElementById('ai'),
+                'chat': document.getElementById('chat'),
+                'userList': document.getElementById('userList'),
+            };
+
+            const showWindow = (name) => {
+                Object.values(windows).forEach(win => win.classList.remove('active'));
+                windows[name].classList.add('active');
+            };
+
+            calcBtn.addEventListener('click', () => showWindow('calculator'));
+            browserBtn.addEventListener('click', () => showWindow('browser'));
+            registryBtn.addEventListener('click', () => showWindow('registry'));
+            taskManagerBtn.addEventListener('click', () => showWindow('taskManager'));
+            anagramMakerBtn.addEventListener('click', () => showWindow('anagramMaker'));
+            paintBtn.addEventListener('click', () => showWindow('paint'));
+            newsBtn.addEventListener('click', () => showWindow('news'));
+            aiBtn.addEventListener('click', () => showWindow('ai'));
+            chatBtn.addEventListener('click', () => showWindow('chat'));
+            userListBtn.addEventListener('click', () => showWindow('userList'));
+
+            document.querySelectorAll('.window .close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.window').classList.remove('active');
+                });
+            });
+
+            document.querySelectorAll('.window .minimize').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const win = this.closest('.window');
+                    win.style.display = 'none';
+                });
+            });
+
+            document.querySelectorAll('.window .maximize').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const win = this.closest('.window');
+                    win.style.width = '100%';
+                    win.style.height = '100%';
+                    win.style.top = '0';
+                    win.style.left = '0';
+                });
+            });
+
+            document.getElementById('acceptBtn').addEventListener('click', () => {
+                setupWindow.style.display = 'none';
+                const iconFile = document.getElementById('iconUpload').files[0];
+                const usernameValue = document.getElementById('usernameInput').value;
+
+                if (iconFile) {
+                    const reader = new FileReader();
+                    reader.onload = () => userIcon.src = reader.result;
+                    reader.readAsDataURL(iconFile);
+                }
+
+                if (usernameValue) {
+                    username.textContent = usernameValue;
                 }
             });
-        });
 
-        document.querySelectorAll('.title-bar .controls .close').forEach(button => {
-            button.addEventListener('click', () => {
-                const window = button.closest('.window');
-                window.style.display = 'none';
-            });
-        });
-
-        // タスクバーのボタン操作
-        document.getElementById('calcBtn').addEventListener('click', () => {
-            toggleWindow('calculator');
-        });
-
-        document.getElementById('browserBtn').addEventListener('click', () => {
-            toggleWindow('browser');
-        });
-
-        document.getElementById('registryBtn').addEventListener('click', () => {
-            toggleWindow('registry');
-        });
-
-        document.getElementById('taskManagerBtn').addEventListener('click', () => {
-            toggleWindow('taskManager');
-        });
-
-        document.getElementById('anagramMakerBtn').addEventListener('click', () => {
-            toggleWindow('anagramMaker');
-        });
-
-        document.getElementById('paintBtn').addEventListener('click', () => {
-            toggleWindow('paint');
-        });
-
-        document.getElementById('newsBtn').addEventListener('click', () => {
-            toggleWindow('news');
-        });
-
-        document.getElementById('aiBtn').addEventListener('click', () => {
-            toggleWindow('ai');
-        });
-
-        document.getElementById('chatBtn').addEventListener('click', () => {
-            toggleWindow('chat');
-        });
-
-        document.getElementById('userListBtn').addEventListener('click', () => {
-            toggleWindow('userList');
-        });
-
-        document.getElementById('acceptBtn').addEventListener('click', () => {
-            const file = document.getElementById('iconUpload').files[0];
-            const username = document.getElementById('usernameInput').value;
-            if (file && username) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('userIcon').src = event.target.result;
-                    document.getElementById('username').textContent = username;
-                    document.getElementById('setup').style.display = 'none';
+            document.getElementById('iconUpload').addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        userIcon.src = reader.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function toggleWindow(id) {
-            document.querySelectorAll('.window').forEach(win => {
-                win.style.display = 'none';
             });
-            document.getElementById(id).style.display = 'block';
-        }
 
-        function appendToCalc(value) {
-            document.getElementById('calcInput').value += value;
-        }
+            document.getElementById('usernameInput').addEventListener('input', function() {
+                username.textContent = this.value;
+            });
 
-        function calculate() {
-            const input = document.getElementById('calcInput');
-            try {
-                input.value = eval(input.value);
-            } catch (e) {
-                input.value = 'エラー';
-            }
-        }
+            window.appendToCalc = function(value) {
+                document.getElementById('calcInput').value += value;
+            };
 
-        function clearCalc() {
-            document.getElementById('calcInput').value = '';
-        }
+            window.calculate = function() {
+                const input = document.getElementById('calcInput').value;
+                try {
+                    document.getElementById('calcInput').value = eval(input);
+                } catch (e) {
+                    document.getElementById('calcInput').value = 'Error';
+                }
+            };
 
-        // ページ読み込み時にローカルストレージから設定を読み込む
-        window.onload = function() {
-            const username = localStorage.getItem('username');
-            const userIcon = localStorage.getItem('userIcon');
-            if (username) {
-                document.getElementById('username').textContent = username;
-            }
-            if (userIcon) {
-                document.getElementById('userIcon').src = userIcon;
-            }
-        };
+            window.clearCalc = function() {
+                document.getElementById('calcInput').value = '';
+            };
+
+            window.generateAnagram = function() {
+                const input = document.getElementById('anagramInput').value;
+                const output = document.getElementById('anagramOutput');
+                // アナグラム生成ロジックをここに追加
+                output.textContent = '生成したアナグラム: ' + input; // プレースホルダー
+            };
+        });
     </script>
 </body>
 </html>

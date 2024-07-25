@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザーリスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+        }
+        #userListContainer {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .user {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .user:last-child {
+            border-bottom: none;
+        }
+        .user img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+        .user button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .user button:hover {
+            background-color: #005a9e;
+        }
+    </style>
+</head>
+<body>
+    <div id="userListContainer">
+        <h2>ユーザーリスト</h2>
+        <div id="users"></div>
+    </div>
+
+    <script>
+        async function loadUserList() {
+            try {
+                const response = await fetch('https://sakalt.github.io/windowstachlyn/userlist.html');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                
+                // ここでユーザーリストを抽出し、表示します。
+                const userListContainer = document.getElementById('users');
+                const users = doc.querySelectorAll('.user'); // .user クラスを持つ要素を選択します
+
+                users.forEach(user => {
+                    const clone = document.createElement('div');
+                    clone.innerHTML = user.innerHTML;
+                    const button = clone.querySelector('button');
+                    button.textContent = 'フォロー';
+                    button.addEventListener('click', () => {
+                        alert('フォローしました');
+                    });
+                    userListContainer.appendChild(clone);
+                });
+            } catch (error) {
+                console.error('ユーザーリストの読み込みに失敗しました:', error);
+            }
+        }
+
+        window.onload = loadUserList;
+    </script>
+</body>
+</html>
